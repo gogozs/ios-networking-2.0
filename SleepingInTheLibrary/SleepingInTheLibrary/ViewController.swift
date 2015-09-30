@@ -11,7 +11,7 @@ import UIKit
 /* 1 - Define constants */
 let BASE_URL = "https://api.flickr.com/services/rest/"
 let METHOD_NAME = "flickr.galleries.getPhotos"
-let API_KEY = "ENTER_YOUR_API_KEY_HERE"
+let API_KEY = "bf0d300ea3b287953d9643cf5dde7f79"
 let GALLERY_ID = "5704-72157622566655097"
 let EXTRAS = "url_m"
 let DATA_FORMAT = "json"
