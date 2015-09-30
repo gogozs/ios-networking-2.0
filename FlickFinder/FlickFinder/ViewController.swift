@@ -12,7 +12,7 @@ import UIKit
 
 let BASE_URL = "https://api.flickr.com/services/rest/"
 let METHOD_NAME = "flickr.photos.search"
-let API_KEY = "ENTER_YOUR_API_KEY_HERE"
+let API_KEY = "bf0d300ea3b287953d9643cf5dde7f79"
 let EXTRAS = "url_m"
 let SAFE_SEARCH = "1"
 let DATA_FORMAT = "json"
@@ -92,7 +92,7 @@ class ViewController: UIViewController {
             /* Parse the data! */
             let parsedResult: AnyObject!
             do {
-                parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+                parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as! NSDictionary
             } catch {
                 parsedResult = nil
                 print("Could not parse the data as JSON: '\(data)'")
@@ -112,6 +112,19 @@ class ViewController: UIViewController {
             }
             
             print(photosDictionary)
+            guard let numberOfPhotos = photosDictionary["perpage"] else {
+               self.photoTitleLabel.text = "no photos"
+               return
+            }
+            
+            print("number of photos \(numberOfPhotos)")
+            
+            let randomNumer = random() % (numberOfPhotos.integerValue)!
+            let  photos = photosDictionary["photo"] as! NSArray
+            let photo = photos[randomNumer] as! NSDictionary
+            let imageURL = photo["url_m"]
+            
+            print("imageURL: \(imageURL?.description)")
         }
         
         task.resume()
