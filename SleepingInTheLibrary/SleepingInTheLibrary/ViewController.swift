@@ -61,9 +61,6 @@ class ViewController: UIViewController {
             
             /* GUARD: Did we get a successful 2XX response? */
             guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
-                dispatch_async(dispatch_get_main_queue(), {
-                    self.setUIEnabled(enabled: true)
-                })
                 if let response = response as? NSHTTPURLResponse {
                     print("Your request returned an invalid response! Status code: \(response.statusCode)!")
                 } else if let response = response {

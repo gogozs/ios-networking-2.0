@@ -23,6 +23,31 @@ class ViewController: UIViewController {
 
     @IBAction func searchPhotosByPhraseButtonTouchUp(sender: AnyObject) {
         print("Implement this function...")
+        let session = NSURLSession.sharedSession()
+        let url = NSURL(string: "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=bf0d300ea3b287953d9643cf5dde7f79&text=baby+asian+elephant&format=json&nojsoncallback=1")
+        let request = NSURLRequest(URL: url!)
+        
+       let task = session.dataTaskWithRequest(request) { (data, response, error) in
+            guard (error == nil) else {
+               print("there was an error with your request: \(error)")
+               return;
+            }
+            
+            guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode < 300 else {
+                
+                print("your response is wrong")
+                return
+                
+            }
+            
+            
+            print("data: \(response)")
+        }
+        
+        task.resume()
+        
+        
+        
     }
     
     @IBAction func searchPhotosByLatLonButtonTouchUp(sender: AnyObject) {
