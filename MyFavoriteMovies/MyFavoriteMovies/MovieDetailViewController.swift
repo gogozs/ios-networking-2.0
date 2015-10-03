@@ -24,6 +24,7 @@ class MovieDetailViewController: UIViewController {
     var session: NSURLSession!
     
     var movie: Movie?
+    var movieResults: [Movie]?
     
     // MARK: Life Cycle
     
@@ -52,13 +53,85 @@ class MovieDetailViewController: UIViewController {
             
             /* TASK A: Get favorite movies, then update the favorite buttons */
             /* 1A. Set the parameters */
+            let methodParameters = [
+                "api_key":      appDelegate.apiKey,
+                "session_id":   appDelegate.sessionID!,
+                "page":         "1"
+                
+            ]
             /* 2A. Build the URL */
-            /* 3A. Configure the request */
-            /* 4A. Make the request */
-            /* 5A. Parse the data */
+            let urlString = appDelegate.baseURLSecureString + "account/" + "\(appDelegate.userID)" + "/favorite/movies" + appDelegate.escapedParameters(methodParameters)
+            let url = NSURL(string: urlString)!
+            
+            /* 3. Configure the request */
+            let request = NSMutableURLRequest(URL: url)
+            request.addValue("application/json", forHTTPHeaderField: "Accept")
+            
+            /* 4. Make the request */
+            let task = session.dataTaskWithRequest(request) { (data, response, error) in
+                
+                /* GUARD: Was there an error? */
+                guard (error == nil) else {
+                    print("There was an error with your request: \(error)")
+                    return
+                }
+                
+                /* GUARD: Did we get a successful 2XX response? */
+                guard let statusCode = (response as? NSHTTPURLResponse)?.statusCode where statusCode >= 200 && statusCode <= 299 else {
+                    if let response = response as? NSHTTPURLResponse {
+                        print("Your request returned an invalid response! Status code: \(response.statusCode)!")
+                    } else if let response = response {
+                        print("Your request returned an invalid response! Response: \(response)!")
+                    } else {
+                        print("Your request returned an invalid response!")
+                    }
+                    return
+                }
+                
+                /* GUARD: Was there any data returned? */
+                guard let data = data else {
+                    print("No data was returned by the request!")
+                    return
+                }
+                
+                /* 5. Parse the data */
+                let parsedResult: AnyObject!
+                do {
+                    parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+                } catch {
+                    parsedResult = nil
+                    print("Could not parse the data as JSON: '\(data)'")
+                    return
+                }
             /* 6A. Use the data! */
-            /* 7A. Start the request */
+                if let results = parsedResult["results"] as? [[String: AnyObject]]  {
+                  self.movieResults  = Movie.moviesFromResults(results)
+                    print(self.movieResults)
+                }
+                
+                var isFound: Bool = false
+                for result in self.movieResults! {
+                    if result.id == movie.id {
+                        isFound = true
+                        break
+                    }
+                }
+                if isFound {
+                    dispatch_async(dispatch_get_main_queue(), {
+                       self.favoriteButton.hidden = true
+                       self.unFavoriteButton.hidden = false
+                    })
+                } else {
+                    dispatch_async(dispatch_get_main_queue(), {
+                       self.unFavoriteButton.hidden = true
+                       self.favoriteButton.hidden = false
+                    })
+                }
         
+            }
+            /* 7A. Start the request */
+            task.resume()
+            
             /* TASK B: Get the poster image, then populate the image view */
             if let posterPath = movie.posterPath {
                 
